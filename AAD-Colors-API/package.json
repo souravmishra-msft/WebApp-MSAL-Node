@@ -1,0 +1,16 @@
+{
+  "name": "aad-colors-api",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "func start",
+    "test": "echo \"No tests yet...\""
+  },
+  "dependencies": {
+    "azure-function-express": "^2.0.0",
+    "express": "^4.17.1",
+    "passport": "^0.5.0",
+    "passport-azure-ad": "^4.3.1"
+  },
+  "devDependencies": {}
+}

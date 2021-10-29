@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AAD-App-Sample</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
+    <!-- load bootstrap css -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.1/css/all.css" crossorigin="anonymous"/>
+    <!-- load fontawesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;700;900&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-custom" style="background-color: #202020;">
+        <a class="navbar-brand navbar-text" href="/"><img id="navLogo" src="/assets/images/AADLogo.svg"> AAD-App-Sample</a>
+        <button class="navbar-toggler"  type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="line"></span> 
+            <span class="line"></span> 
+            <span class="line" style="margin-bottom: 0;"></span>
+        </button>
+      
+        <div class="collapse navbar-collapse flex-grow-0" id="navbarSupportedContent">  
+            <ul class="navbar-nav mr-auto mt-2 mt-lg-0"> 
+
+            </ul>         
+            <ul class="navbar-nav ml-auto">
+                <% if(!user) { %>
+                  <li class="nav-item active">
+                    <a class="nav-link btn btn-custom" href="/login" style="color: #fff;"><i class="fas fa-sign-in-alt"></i> Sign-In</a>
+                  </li>
+                <% } else { %>
+                <li class="nav-item active">
+                    <a class="nav-link btn btn-custom" href="" style="color: #fff;"><i class="fas fa-user" aria-hidden="true"></i> <%= user.user %></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link btn btn-custom" href="/logout" style="color: #fff;"><i class="fas fa-sign-in-alt"></i> Logout</a>
+                </li>
+                <% } %>
+            </ul>
+        </div>
+    </nav>
+
+    <% if(user) {%>
+    <div class="color-container">
+        <h2 id="">User: <%= data.data.name %></h2>
+        <div id="color-box" data-api="<%= data.data.output%>">
+            <p><%=data.data.message%></p>
+        </div>
+        <hr>
+        <div>
+            <a id="red-btn" class="btn btn-api" href="/callRedApi"> Call Red Api</a>
+        </div>
+        <div>
+            <a id="green-btn" class="btn btn-api" href="/callGreenApi"> Call Green Api</a>
+        </div>
+        <div>
+            <a id="green-btn" class="btn btn-api" href="/"><i class="fas fa-home"></i> Back to Home</a>
+        </div>
+    </div>
+    
+    <% } %>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <script type="text/javascript" src="/js/main.js"></script>
+  </body>
+</html>

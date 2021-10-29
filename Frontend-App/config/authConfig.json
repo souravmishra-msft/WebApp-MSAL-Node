@@ -1,0 +1,25 @@
+{
+    "authOptions":
+        {
+            "clientId": "50a01ef5-239f-4f8a-9cea-c6ee3f24886c",
+            "clientSecret": "T5O7Q~4x1Bg5rsmAqYJ_nLua3nAX8zB5hj60e",
+            "authority": "https://login.microsoftonline.com/common/",
+            "postLogoutRedirectUri": "http://localhost:5000"
+        },
+    "request":
+        {
+            "authCodeUrlParameters": {
+                "scopes": ["api://AAD-Colors-API/.default"],
+                "redirectUri": "http://localhost:5000/redirect"
+            },
+            "tokenRequest": {
+                "redirectUri": "http://localhost:5000/redirect",
+                "scopes": ["api://AAD-Colors-API/.default"]
+            }
+        },
+    "resourceApi":
+        {
+            "endpoint": "http://localhost:7071/api"
+        }
+}
+    

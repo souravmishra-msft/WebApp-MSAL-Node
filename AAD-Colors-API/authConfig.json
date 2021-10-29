@@ -1,0 +1,12 @@
+{
+  "tenantID": "0891528f-b789-41ef-9d10-895a44f5f624",
+  "clientID": "785e194c-6abf-41d2-ab24-a272aadda4ff",
+  "audience": "785e194c-6abf-41d2-ab24-a272aadda4ff",
+  "authority": "login.microsoftonline.com",
+  "version": "v2.0",
+  "discovery": ".well-known/openid-configuration",
+  "scope": ["access_as_user"],
+  "validateIssuer": true,
+  "passReqToCallback": false,
+  "loggingLevel": "info"
+}
