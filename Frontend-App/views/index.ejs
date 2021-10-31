@@ -50,6 +50,7 @@
           <p>Login to AAD using MSAL-Node</p>
           <p><small>This sample NodeJS application calls an AAD Protected API.</small></p>
           <a class="btn btn-custom btn-jumbo" href="/login" style="color: #fff;"><i class="fas fa-sign-in-alt"></i> Sign-In</a>
+          <a class="btn btn-custom btn-jumbo" href="/refresh" style="color: #fff;"><i class="fas fa-sign-in-alt"></i> Force Acquire Token By Refresh Token</a>
         <% } else { %>
           <h3>Welcome <%= user.user %> !</h3>
         <% } %>

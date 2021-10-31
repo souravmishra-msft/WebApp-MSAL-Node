@@ -29,6 +29,10 @@ const greenApi = `${authConfig.resourceApi.endpoint}/green`;
 
 // Create msal application object
 const cca = new msal.ConfidentialClientApplication(config);
+const msalTokenCache = cca.getTokenCache();
+let accounts;
+
+
 
 router.use(session({
     resave: false,
@@ -45,18 +49,41 @@ router.get('/', (req, res) => {
 });
 
 /** Login Endpoint */
-router.get("/login", (req, res) => {
-  const authCodeUrlParameters = {
-    scopes: authConfig.request.authCodeUrlParameters.scopes,
-    redirectUri: authConfig.request.authCodeUrlParameters.redirectUri
-  };
+router.get("/login", async (req, res) => {
+  accounts = await msalTokenCache.getAllAccounts();
 
-  // get url to sign user in and consent to scopes needed for application
-  cca.getAuthCodeUrl(authCodeUrlParameters).then((response) => {
-    //console.log("\nAuthCodeURL: \n" + response);
-    res.redirect(response);
-  }).catch((error) => console.log(JSON.stringify(error)));
+  if(accounts.length > 0) {
+    //Build the silent request
+    const silentRequest = {
+      account: accounts[0],
+      scopes: authConfig.request.tokenRequest.scopes,
+    }
+
+    cca.acquireTokenSilent(silentRequest).then((response) => {
+      const accessToken = response.accessToken;
+      res.redirect(response);
+    }).catch((error) =>{
+      console.log(JSON.stringify(error))
+    });
+  } else {
+    const authCodeUrlParameters = {
+      scopes: authConfig.request.authCodeUrlParameters.scopes,
+      redirectUri: authConfig.request.authCodeUrlParameters.redirectUri
+    };
+    // get url to sign user in and consent to scopes needed for application
+    cca.getAuthCodeUrl(authCodeUrlParameters).then((response) => {
+      //console.log("\nAuthCodeURL: \n" + response);
+      res.redirect(response);
+    }).catch((error) => console.log(JSON.stringify(error)));
+  } 
 });
+
+/**Refresh Endpoint */
+router.get("/refresh", (req, res) => {
+
+});
+
+
 
 /** Redirect Endpoint */
 router.get("/redirect", (req, res) => {
@@ -68,7 +95,7 @@ router.get("/redirect", (req, res) => {
 
   cca.acquireTokenByCode(tokenRequest).then((response) => {
     console.log("\nResponse: \n", response.account);
-    req.session.templateParams = {user: response.account.name, homeAccountId: response.account.homeAccountId, profile: true, idToken: response.account.idTokenClaims, accessToken: response.accessToken};
+    req.session.templateParams = {user: response.account.name, profile: true, idToken: response.account.idTokenClaims};
     console.log(`\nSession Details: \n${JSON.stringify(req.session.templateParams)}`);
     const user = req.session.templateParams;
     res.render('index.ejs', {user: user});
@@ -91,68 +118,97 @@ post_logout_redirect_uri=${authConfig.authOptions.postLogoutRedirectUri}`;
 
 /** API Call Endpoint */
 router.get('/callRedApi', async (req, res) => {
-  const accessToken = req.session.templateParams.accessToken;
-  const headers = {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${accessToken}`
+  //get Accounts
+  accounts = await msalTokenCache.getAllAccounts();
+  //console.log(`\nAccounts: \n ${JSON.stringify(accounts[0])}`);
+
+  //Build the silent request
+  const silentRequest = {
+    account: accounts[0],
+    scopes: authConfig.request.tokenRequest.scopes,
   }
-  console.log(`\nHeaders: \n ${JSON.stringify(headers)}`);
-  console.log(`\nURL: ${redApi}\n`);
-  console.log(`\nCalling the API...\n`);
-  try{
-      axios({
-      method: 'get',
-      url: redApi,
-      headers: headers
-    }).then((response) => {
-      console.log(`\nResponse from API: \n ${JSON.stringify(response.data)}`);
-      req.session.apiData = {data: response.data};
-      const user = req.session.templateParams;
-      const data = req.session.apiData;
-      console.log(`\nData: \n${JSON.stringify(data)}\n`);
-      res.render('result.ejs', {user: user, data: data});
-      //console.log(`\nSessions: \n ${JSON.stringify(req.session)}`);
-      console.log(`\nAPI Call completed...\n`);
-    }).catch((error) => {
-      console.log(`\nError: \n ${error}\n`);
-    });    
-  } catch(error) {
-    res.status(500).send(error);
-  }  
+
+  /** Acquire Token Silently - pulling the token from in-memory cache */
+  cca.acquireTokenSilent(silentRequest).then((response) => {
+    const accessToken = response.accessToken;
+    const headers = {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${accessToken}`
+    }
+    console.log(`\nHeaders: \n ${JSON.stringify(headers)}`);
+    console.log(`\nURL: ${redApi}\n`);
+    console.log(`\nCalling the API...\n`);
+    try{
+        axios({
+        method: 'get',
+        url: redApi,
+        headers: headers
+      }).then((response) => {
+        console.log(`\nResponse from API: \n ${JSON.stringify(response.data)}`);
+        req.session.apiData = {data: response.data};
+        const user = req.session.templateParams;
+        const data = req.session.apiData;
+        console.log(`\nData: \n${JSON.stringify(data)}\n`);
+        res.render('result.ejs', {user: user, data: data});
+        //console.log(`\nSessions: \n ${JSON.stringify(req.session)}`);
+        console.log(`\nAPI Call completed...\n`);
+      }).catch((error) => {
+        console.log(`\nError: \n ${error}\n`);
+      });    
+    } catch(error) {
+      res.status(500).send(error);
+    }
+  }).catch((error) => {
+    console.log(error);
+  });  
 });
 
 
 router.get('/callGreenApi', async (req, res) => {
-  const accessToken = req.session.templateParams.accessToken;
-  const headers = {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${accessToken}`
-  }
-  console.log(`\nHeaders: \n ${JSON.stringify(headers)}`);
-  console.log(`\nURL: ${redApi}\n`);
-  console.log(`\nCalling the API...\n`);
-  try{
-      axios({
-      method: 'get',
-      url: greenApi,
-      headers: headers
-    }).then((response) => {
-      console.log(`\nResponse from API: \n ${JSON.stringify(response.data)}`);
-      req.session.apiData = {data: response.data};
-      const user = req.session.templateParams;
-      const data = req.session.apiData;
-      console.log(`\nData: \n${JSON.stringify(data)}\n`);
-      res.render('result.ejs', {user: user, data: data});
-      // console.log(`\nSessions: \n ${JSON.stringify(req.session)}`);
-      console.log(`\nAPI Call completed...\n`);
-    }).catch((error) => {
-      console.log(`\nError: \n ${error}\n`);
-    });    
-  } catch(error) {
-    res.status(500).send(error);
-  }
-});
+  //get Accounts
+  accounts = await msalTokenCache.getAllAccounts();
+  console.log(`\nAccounts: \n ${JSON.stringify(accounts[0])}`);
 
+  //Build the silent request
+  const silentRequest = {
+    account: accounts[0],
+    scopes: authConfig.request.tokenRequest.scopes,
+  }
+
+  /** Acquire Token Silently - pulling the token from in-memory cache */
+  cca.acquireTokenSilent(silentRequest).then((response) => {
+    const accessToken = response.accessToken;
+    const headers = {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${accessToken}`
+    }
+    console.log(`\nHeaders: \n ${JSON.stringify(headers)}`);
+    console.log(`\nURL: ${redApi}\n`);
+    console.log(`\nCalling the API...\n`);
+    try{
+        axios({
+        method: 'get',
+        url: greenApi,
+        headers: headers
+      }).then((response) => {
+        console.log(`\nResponse from API: \n ${JSON.stringify(response.data)}`);
+        req.session.apiData = {data: response.data};
+        const user = req.session.templateParams;
+        const data = req.session.apiData;
+        console.log(`\nData: \n${JSON.stringify(data)}\n`);
+        res.render('result.ejs', {user: user, data: data});
+        //console.log(`\nSessions: \n ${JSON.stringify(req.session)}`);
+        console.log(`\nAPI Call completed...\n`);
+      }).catch((error) => {
+        console.log(`\nError: \n ${error}\n`);
+      });    
+    } catch(error) {
+      res.status(500).send(error);
+    }
+  }).catch((error) => {
+    console.log(error);
+  });  
+});
 
 
 module.exports = router;
