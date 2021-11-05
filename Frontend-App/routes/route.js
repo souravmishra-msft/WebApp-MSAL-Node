@@ -4,6 +4,7 @@ const session = require('express-session');
 const axios = require('axios');
 
 const authConfig = require('../config/authConfig.json');
+const { response } = require("express");
 
 
 const config = {
@@ -24,18 +25,20 @@ const config = {
   }
 };
 
-const redApi = `${authConfig.resourceApi.endpoint}/red`;
-const greenApi = `${authConfig.resourceApi.endpoint}/green`;
+const redApi = `${authConfig.resourceApi.endpoint}/colors/red`;
+const greenApi = `${authConfig.resourceApi.endpoint}/colors/green`;
+const locationApi = `${authConfig.resourceApi.endpoint}/location/getLoc`;
 
 // Create msal application object
 const cca = new msal.ConfidentialClientApplication(config);
 const msalTokenCache = cca.getTokenCache();
 let accounts;
+let locData;
 
 
 
 router.use(session({
-    resave: false,
+    resave: false, 
     saveUninitialized: true,
     secret: 'secretSession',
 }));
@@ -51,7 +54,6 @@ router.get('/', (req, res) => {
 /** Login Endpoint */
 router.get("/login", async (req, res) => {
   accounts = await msalTokenCache.getAllAccounts();
-
   if(accounts.length > 0) {
     //Build the silent request
     const silentRequest = {
@@ -60,30 +62,27 @@ router.get("/login", async (req, res) => {
     }
 
     cca.acquireTokenSilent(silentRequest).then((response) => {
-      const accessToken = response.accessToken;
-      res.redirect(response);
+      //console.log(`\nResponse-SilentTokenAcquired: \n${JSON.stringify(response)}`);
+      req.session.templateParams = {user: response.account.name, profile: true, idToken: response.account.idTokenClaims};
+      const user = req.session.templateParams;
+      res.render('index.ejs', {user: user});
     }).catch((error) =>{
-      console.log(JSON.stringify(error))
+      console.log(`\nError: \n${JSON.stringify(error)}`);
     });
   } else {
+    console.log(`\nNo tokens found in cache. --> Initiating Auth Code Flow. --> Building auth Code Flow URL \n`);
     const authCodeUrlParameters = {
       scopes: authConfig.request.authCodeUrlParameters.scopes,
       redirectUri: authConfig.request.authCodeUrlParameters.redirectUri
     };
     // get url to sign user in and consent to scopes needed for application
     cca.getAuthCodeUrl(authCodeUrlParameters).then((response) => {
-      //console.log("\nAuthCodeURL: \n" + response);
+      console.log("\nAuthCodeURL: \n" + response);
       res.redirect(response);
-    }).catch((error) => console.log(JSON.stringify(error)));
+    }).catch((error) => console.log(`\nError: \n${JSON.stringify(error)}`));
   } 
-});
-
-/**Refresh Endpoint */
-router.get("/refresh", (req, res) => {
 
 });
-
-
 
 /** Redirect Endpoint */
 router.get("/redirect", (req, res) => {
@@ -94,9 +93,8 @@ router.get("/redirect", (req, res) => {
   };
 
   cca.acquireTokenByCode(tokenRequest).then((response) => {
-    console.log("\nResponse: \n", response.account);
+    //console.log(`\nResponse-FromAuthCode: \n${JSON.stringify(response)}`);
     req.session.templateParams = {user: response.account.name, profile: true, idToken: response.account.idTokenClaims};
-    console.log(`\nSession Details: \n${JSON.stringify(req.session.templateParams)}`);
     const user = req.session.templateParams;
     res.render('index.ejs', {user: user});
   }).catch((error) => {
@@ -105,6 +103,39 @@ router.get("/redirect", (req, res) => {
   });
   
 });
+
+/**Refresh Endpoint */
+router.get("/refresh", async (req, res) => {
+  accounts = await msalTokenCache.getAllAccounts();
+
+  if(accounts.length > 0) {
+    //Build the silent request
+    const silentRequest = {
+      account: accounts[0],
+      scopes: authConfig.request.tokenRequest.scopes,
+      forceRefresh: true,
+    }
+
+    cca.acquireTokenSilent(silentRequest).then((response) => {
+      const accessToken = response.accessToken;
+      //console.log(`\nForced-AccessToken using Refresh Token: \n${accessToken}`);
+      res.redirect('/');
+    }).catch((error) =>{
+      console.log(`\nError: \n${JSON.stringify(error)}`)
+    });
+  } else {
+    const authCodeUrlParameters = {
+      scopes: authConfig.request.authCodeUrlParameters.scopes,
+      redirectUri: authConfig.request.authCodeUrlParameters.redirectUri
+    };
+    // get url to sign user in and consent to scopes needed for application
+    cca.getAuthCodeUrl(authCodeUrlParameters).then((response) => {
+      //console.log("\nAuthCodeURL: \n" + response);
+      res.redirect(response);
+    }).catch((error) => console.log(`\nError: \n${JSON.stringify(error)}`));
+  } 
+});
+
 
 /** Logout endpoint */
 router.get('/logout', (req, res) => {
@@ -115,14 +146,13 @@ post_logout_redirect_uri=${authConfig.authOptions.postLogoutRedirectUri}`;
     });  
 });
 
-
 /** API Call Endpoint */
 router.get('/callRedApi', async (req, res) => {
   //get Accounts
   accounts = await msalTokenCache.getAllAccounts();
   //console.log(`\nAccounts: \n ${JSON.stringify(accounts[0])}`);
 
-  //Build the silent request
+  //Build the silent request 
   const silentRequest = {
     account: accounts[0],
     scopes: authConfig.request.tokenRequest.scopes,
@@ -130,6 +160,7 @@ router.get('/callRedApi', async (req, res) => {
 
   /** Acquire Token Silently - pulling the token from in-memory cache */
   cca.acquireTokenSilent(silentRequest).then((response) => {
+    console.log(`\nResponse-RedAPI: \n${JSON.stringify(response)}`);
     const accessToken = response.accessToken;
     const headers = {
       "Content-Type": "application/json",
@@ -159,7 +190,7 @@ router.get('/callRedApi', async (req, res) => {
       res.status(500).send(error);
     }
   }).catch((error) => {
-    console.log(error);
+    console.log(`\nError: \n${JSON.stringify(error)}`);
   });  
 });
 
@@ -203,12 +234,15 @@ router.get('/callGreenApi', async (req, res) => {
         console.log(`\nError: \n ${error}\n`);
       });    
     } catch(error) {
-      res.status(500).send(error);
+      res.status(500).send(`\nError: \n${JSON.stringify(error)}`);
     }
   }).catch((error) => {
-    console.log(error);
+    console.log(`\nError: \n${JSON.stringify(error)}`);
   });  
 });
+
+
+
 
 
 module.exports = router;

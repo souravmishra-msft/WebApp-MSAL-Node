@@ -5,13 +5,38 @@ body {
 }
 
 .container {
-    padding-top: 80px;
+    padding-top: 20px;
 }
 
 .jumbotron {
     background-color: rgb(95, 94, 94);
     color:#ffff;
     border-radius: 20px;
+    padding: 30px;
+}
+
+#localDetails {
+  height: auto;
+  width: auto;
+  /* border:2px rgb(0, 81, 255) solid; */
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+#localDetails p {
+  font-size: 12px;
+}
+
+#needle i{
+  height:20px;
+  width:30px;
+  margin-top:0px;
+  /* Initial value for rotate is needed for transition to work */
+  transform:rotate(90);  
+
+  /* CSS transition creates smooth effect */
+  transition:all 1.5s;
 }
 
 #mainLogo {
@@ -47,6 +72,8 @@ body {
   width: auto;
   height: auto;
 }
+
+
 
 .api-container {
   width: auto;

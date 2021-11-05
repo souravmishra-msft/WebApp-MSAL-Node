@@ -13,7 +13,7 @@ const route = require("./routes/route");
 const PORT = process.env.PORT;
 const app = express();
 
-app.use(morgan("dev"));
+// app.use(morgan("dev"));
 app.use(cookieParser());
 app.use(express.urlencoded({ urlencoded: true }));
 app.use(express.json());

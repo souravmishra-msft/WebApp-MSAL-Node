@@ -36,15 +36,15 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/api/test", (req, res) => {
+app.get("/api/colors/test", (req, res) => {
   res.status(200).json({
     status: "200",
-    message: "Access API: Test Passed",
+    message: "Access Colors API: Success!",
   });
 });
 
 // Expose and protect API endpoint
-app.get("/api/red", passport.authenticate("oauth-bearer", { session: false }), (req, res) => {
+app.get("/api/colors/red", passport.authenticate("oauth-bearer", { session: false }), (req, res) => {
     console.log(`\nRequest: \n ${JSON.stringify(req.headers.authorization)}`);
     const request = req.headers.authorization;
     const token = request.split(' ');
@@ -67,7 +67,7 @@ app.get("/api/red", passport.authenticate("oauth-bearer", { session: false }), (
   }
 );
 
-app.get("/api/green", passport.authenticate("oauth-bearer", { session: false }), (req, res) => {
+app.get("/api/colors/green", passport.authenticate("oauth-bearer", { session: false }), (req, res) => {
     console.log(`\nRequest: \n ${JSON.stringify(req.headers.authorization)}`);
     const request = req.headers.authorization;
     const token = request.split(' ');

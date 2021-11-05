@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- <meta http-equiv="refresh" content="30"> -->
     <title>AAD-App-Sample</title>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
@@ -45,14 +46,24 @@
 
     <div class="container">
       <div class="jumbotron text-center">
+        <div id="localDetails">
+          <p id="location"> </p>
+          <p id="dateTime"> </p>
+          <p id="temperature"> </p>
+          <div id="needle">
+            <i class="fas fa-arrow-right"></i>
+          </div>
+        </div>
         <h1><img id="mainLogo" src="/assets/images/AADLogo.svg"> AAD Sample App</h1>
         <% if(!user) { %>
           <p>Login to AAD using MSAL-Node</p>
           <p><small>This sample NodeJS application calls an AAD Protected API.</small></p>
           <a class="btn btn-custom btn-jumbo" href="/login" style="color: #fff;"><i class="fas fa-sign-in-alt"></i> Sign-In</a>
-          <a class="btn btn-custom btn-jumbo" href="/refresh" style="color: #fff;"><i class="fas fa-sign-in-alt"></i> Force Acquire Token By Refresh Token</a>
         <% } else { %>
           <h3>Welcome <%= user.user %> !</h3>
+          <a class="btn btn-custom btn-jumbo" href="/refresh" style="color: #fff;" data-toggle="tooltip" data-placement="bottom" title="Fetch a new access-token forcefully using the existing refresh-token">
+            <i class="fas fa-sign-in-alt"></i> Force Acquire Token By Refresh Token
+          </a>
         <% } %>
       </div>
     </div>
@@ -62,10 +73,10 @@
       
       <h2> API: </h2>
       <div>
-        <a id="red-btn" class="btn btn-api" href="/callRedApi" onclick="sendRequestRed()">Call Red Api</a>
+        <a id="red-btn" class="btn btn-api" href="/callRedApi" >Call Red Api</a>
       </div>
       <div>
-        <a id="green-btn" class="btn btn-api" href="/callGreenApi" onclick="sendRequestGreen()">Call Green Api</a>
+        <a id="green-btn" class="btn btn-api" href="/callGreenApi" >Call Green Api</a>
       </div>
     </div>
     <!-- <hr> -->
@@ -78,6 +89,13 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+
+    <script>
+        $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip();   
+        });
+    </script>
 
     <script type="text/javascript" src="/js/main.js"></script>
   </body>
