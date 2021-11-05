@@ -19,13 +19,25 @@ body {
   height: auto;
   width: auto;
   /* border:2px rgb(0, 81, 255) solid; */
-  margin-bottom: 30px;
+  margin-bottom: 10px;
   display: flex;
   justify-content: space-evenly;
 }
 
 #localDetails p {
   font-size: 12px;
+}
+
+#locDetails {
+  height: auto;
+  width: auto;
+  border-radius: 15px;
+  background-color: rgb(120, 120, 121);
+  margin: 10px 50px 10px 50px;
+  padding: 10px;
+  color: white;
+  display: flex;
+  justify-content: space-evenly;
 }
 
 #needle i{

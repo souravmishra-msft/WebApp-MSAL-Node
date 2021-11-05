@@ -62,7 +62,7 @@ app.get("/api/colors/red", passport.authenticate("oauth-bearer", { session: fals
       res.status(500).json({
         status: 500,
         message: error.message,
-      });
+      });red
     }
   }
 );

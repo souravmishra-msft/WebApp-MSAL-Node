@@ -2,7 +2,6 @@ let loc = document.getElementById('location');
 let time = document.getElementById('dateTime');
 let temp = document.getElementById('temperature');
 let needle = document.getElementById('needle').childNodes[1];
-console.log(needle);
 
 window.addEventListener('load', () => {
     let lat;
@@ -22,8 +21,8 @@ window.addEventListener('load', () => {
     const windDirection = (windVal) => {
         lastAngle = +lastAngle + -windVal;
         //console.clear();
-        console.log(`\nCurrent last angle: ${lastAngle}`);
-        console.log(`\nWind value: ${-windVal}`);
+        //console.log(`\nCurrent last angle: ${lastAngle}`);
+        //console.log(`\nWind value: ${-windVal}`);
         needle.style.transform = "rotateZ(" + lastAngle + "deg)";
     }
 
@@ -39,7 +38,7 @@ window.addEventListener('load', () => {
             fetch(url)
                 .then(response => { return response.json()})
                 .then(data => {
-                    console.log(`\nData: ${JSON.stringify(data)}\n`);
+                    //console.log(`\nData: ${JSON.stringify(data)}\n`);
                     // Data destructuring
                     const {name} = data;
                     const {country} = data.sys;
