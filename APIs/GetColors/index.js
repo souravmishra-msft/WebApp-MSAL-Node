@@ -38,7 +38,7 @@ app.use((req, res, next) => {
 
 app.get("/api/colors/test", (req, res) => {
   res.status(200).json({
-    status: "200",
+    status: "Success",
     message: "Access Colors API: Success!",
   });
 });

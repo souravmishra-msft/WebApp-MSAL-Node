@@ -81,7 +81,6 @@ router.get("/login", async (req, res) => {
       res.redirect(response);
     }).catch((error) => console.log(`\nError: \n${JSON.stringify(error)}`));
   } 
-
 });
 
 /** Redirect Endpoint */
@@ -93,7 +92,7 @@ router.get("/redirect", (req, res) => {
   };
 
   cca.acquireTokenByCode(tokenRequest).then((response) => {
-    //console.log(`\nResponse-FromAuthCode: \n${JSON.stringify(response)}`);
+    console.log(`\nResponse-FromAuthCode: \n${JSON.stringify(response)}`);
     req.session.templateParams = {user: response.account.name, profile: true, idToken: response.account.idTokenClaims};
     const user = req.session.templateParams;
     res.render('index.ejs', {user: user});
@@ -118,7 +117,7 @@ router.get("/refresh", async (req, res) => {
 
     cca.acquireTokenSilent(silentRequest).then((response) => {
       const accessToken = response.accessToken;
-      //console.log(`\nForced-AccessToken using Refresh Token: \n${accessToken}`);
+      console.log(`\nForced-AccessToken using Refresh Token: \n${accessToken}`);
       res.redirect('/');
     }).catch((error) =>{
       console.log(`\nError: \n${JSON.stringify(error)}`)
@@ -140,11 +139,23 @@ router.get("/refresh", async (req, res) => {
 /** Logout endpoint */
 router.get('/logout', (req, res) => {
   const logoutUri = `https://login.microsoftonline.com/common/oauth2/v2.0/logout?
-post_logout_redirect_uri=${authConfig.authOptions.postLogoutRedirectUri}`;
-    req.session.destroy(() => {
-      res.redirect(logoutUri);
-    });  
+  post_logout_redirect_uri=${authConfig.authOptions.postLogoutRedirectUri}`;
+  cca.getTokenCache().getAllAccounts()
+    .then((response) => {
+      const account = response[0];
+      console.log(`Account: ${JSON.stringify(account)}`);
+      console.log(cca.getTokenCache().getAllAccounts());
+      cca.getTokenCache().removeAccount(account)
+        .then(() => {
+          req.session.destroy(() => {
+            res.redirect(logoutUri);
+          })
+        }).catch((error) => {
+          res.status(500).send(error);
+        });
+    });
 });
+
 
 /** API Call Endpoint */
 router.get('/callRedApi', async (req, res) => {
@@ -240,8 +251,6 @@ router.get('/callGreenApi', async (req, res) => {
     console.log(`\nError: \n${JSON.stringify(error)}`);
   });  
 });
-
-
 
 
 

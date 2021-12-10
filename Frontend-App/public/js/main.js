@@ -1,8 +1,9 @@
 let loc = document.getElementById('location');
 let time = document.getElementById('dateTime');
 let temp = document.getElementById('temperature');
+let wind = document.getElementById('wind');
 let needle = document.getElementById('needle').childNodes[1];
-
+console.log(`Wind: ${wind}`);
 window.addEventListener('load', () => {
     let lat;
     let lon;
@@ -13,7 +14,7 @@ window.addEventListener('load', () => {
         let date = new Date();
         let dateStr = date.toDateString();
         let timeStr = date.toLocaleTimeString();
-        time.innerHTML = dateStr + ' ' + timeStr; 
+        time.innerHTML = "Date/Time: " + dateStr + ' ' + timeStr; 
     };
 
     setInterval(dateVal, 1000);
@@ -38,19 +39,21 @@ window.addEventListener('load', () => {
             fetch(url)
                 .then(response => { return response.json()})
                 .then(data => {
-                    //console.log(`\nData: ${JSON.stringify(data)}\n`);
+                    console.log(`\nData: ${JSON.stringify(data)}\n`);
                     // Data destructuring
                     const {name} = data;
                     const {country} = data.sys;
                     const {feels_like, humidity} = data.main;
-                    const {deg} = data.wind;
+                    const {deg, speed} = data.wind;
                     const {id, main} = data.weather[0];
 
-                    loc.textContent = `${name}, ${country}`;
-                    let val = Math.round(feels_like);
-                    temp.innerHTML = val + " &deg;C"; 
+                    loc.innerHTML = `Location: ${name}, ${country}`;
+                    let temp_val = Math.round(feels_like);
+                    temp.innerHTML = "Temperature: " + temp_val + " &deg;C"; 
                     
-                    setInterval(windDirection(deg), 1000); 
+
+                    wind.innerHTML = "Wind Direction/Speed: " + deg + "&deg; | " + speed + "m/sec" ;
+                    windDirection(deg); 
                 });
         });
     } else {

@@ -1,5 +1,5 @@
 {
-    "azureFunctions.deploySubpath": "AAD-Colors-API",
+    "azureFunctions.deploySubpath": "APIs",
     "azureFunctions.postDeployTask": "npm install (functions)",
     "azureFunctions.projectLanguage": "JavaScript",
     "azureFunctions.projectRuntime": "~3",
