@@ -10,6 +10,7 @@
     "azure-function-express": "^2.0.0",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
+    "mongoose": "^6.1.2",
     "passport": "^0.5.0",
     "passport-azure-ad": "^4.3.1"
   },
